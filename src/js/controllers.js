@@ -125,15 +125,24 @@ app.controller('myController', ['$scope', 'shoppingService', function($scope, sh
 
   $scope.nums = [2,3,4,5,6,7,8,9,10]
 
-  $scope.catArr = [];
-  $scope.teas.forEach(function (el) {
+  // $scope.catArr = [];
+  // $scope.teas.forEach(function (el) {
    
-    el.categories.forEach(function (innerEl) {
-      if ($scope.catArr.indexOf(innerEl) === -1) {
-        $scope.catArr.push(innerEl);
-      } 
-    });
-  });
+  //   el.categories.forEach(function (innerEl) {
+  //     if ($scope.catArr.indexOf(innerEl) === -1) {
+  //       $scope.catArr.push(innerEl);
+  //     } 
+  //   });
+  // });
+
+  $scope.catArr = $scope.teas
+    .map(function (tea) { return tea.categories; }) // return only categories
+    .reduce(function (prev, curr) { return prev.concat(curr); }) // flatten array
+    .reduce(function (acc, category) {
+      // unique the values in the array
+      if ( acc.indexOf(category) < 0 ) { acc.push(category); }
+      return acc;
+    }, []);
 
   $scope.addToBag = function (tea, selNum) {
     shoppingService.addToCart(tea, selNum);
@@ -147,9 +156,11 @@ app.controller('checkoutController', ['$scope', 'shoppingService', function ($sc
   $scope.my = {edit: true};
   $scope.cartItems = shoppingService.getCartItems();
 
-  $scope.cartTotal = 0; 
+   
 
-  calTotal = function () {$scope.cartItems.forEach(function (el) {
+  var calTotal = function () {
+    $scope.cartTotal = 0;
+    $scope.cartItems.forEach(function (el) {
       $scope.cartTotal += el.price * el.qty / 100;
     })
   }
@@ -159,7 +170,7 @@ app.controller('checkoutController', ['$scope', 'shoppingService', function ($sc
   $scope.save = function (item, qty) {
     shoppingService.saveItem(item, qty);
     $scope.my.edit = true;
-    $scope.cartTotal = 0;
+    // $scope.cartTotal = 0;
     calTotal();
   }
 
@@ -167,7 +178,7 @@ app.controller('checkoutController', ['$scope', 'shoppingService', function ($sc
     console.log('remove',item);
     shoppingService.removeItem(item);
     $scope.cartItems = shoppingService.getCartItems();
-    $scope.cartTotal = 0;
+    // $scope.cartTotal = 0;
     calTotal();
   }
     
